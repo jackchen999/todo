@@ -1,0 +1,181 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>mytodos</title>
+	</head>
+	<style>
+		#main{
+	position: absolute;
+	left: 40%;
+	top: 20%
+ }
+ #list{
+	 text-decoration: none;
+	background-color: darkgrey;
+	list-style: none;
+ }
+ #input{
+	 width: 500px;
+	 height: 30px;
+	 font-size: 25px;
+ }
+ .destory{
+  height: 20px;
+  float: right;
+  transition: color 0.2s ease-out;
+ }
+ .listContent{
+	width:465px;
+ }
+ footer{
+	background-color: #31B0D5;
+	width:505px;
+	text-spacing: 5px;
+ }
+ .filter li{
+	 float: right;
+ }
+ .toggle{
+	 float: left;
+ }
+</style>
+	</head>
+	<body>
+		<div id="main">
+			<input id='input' type="text" onkeyup="getInput()" />
+			<section id="section">
+				<ul id="list">
+				</ul>
+				<footer>
+					<span id="showNum"></span>
+					<span>item left</span>
+					<button onclick="showAll()">All</button>
+					<button onclick="showActive()">Active</button>
+					<button onclick="showCompleted()">Completed</button>
+					<button onclick="removeItem()">Clear Completed</button>
+				</footer>
+			</section>
+		</div>
+		<script>
+			var input = document.getElementById('input')
+			var ulList = document.getElementById('list')
+			var item=document.getElementById("showNum")
+			var list = []
+			var checked = []
+			var disChecked=[]
+			var active=[]
+			var length=0
+			var allState=true
+			var activeState=false
+			var completedState=false
+   if(!window.localStorage){
+		   alert("浏览器不支持localstorage");
+	 }else{
+			function getInput() {
+				if (input.value != "" && event.keyCode == 13) {
+				  list.push(input.value)
+					input.value = ""
+					ulList.innerHTML = ""
+					this.renderData(list)
+				}
+			}
+      
+			function renderData(list) {
+			  item.innerText=list.length
+				for (var i = 0; i < list.length; i++) {
+					ulList.innerHTML += "<li><div class='listContent'><input class='toggle' type='checkbox' onclick ='getNum()'>" + list[i] +
+						"<button class='destory' onclick='removeSingle(this," + i + ")'>删除</button></div></li>"
+				}
+			}
+      function getNum() {
+		    this.getChecked()
+			  item.innerText=list.length-checked.length
+			}
+			
+			function removeSingle(obj, index) {
+				ulList.removeChild(obj.parentNode.parentNode)
+				if(allState){
+				list.splice(index, 1)
+				}
+				if(activeState){
+					list.splice(index, 1)
+				}
+				if(completedState){
+					disChecked.splice(index, 1)
+				}
+				/* ulList.innerHTML = "" */
+				/* this.renderData() */
+			}
+
+			function getChecked() {
+				checked = []
+				for (var i = 0; i < ulList.childNodes.length; i++) {
+					if (ulList.childNodes[i].firstChild.firstChild.checked == true) {
+						checked.push(ulList.childNodes[i].firstChild.childNodes[1])
+				}
+				}
+				this.dissCheck(checked)
+				this.getActive()
+			}
+			function getActive(){	
+				  active = list.filter(item => {
+              return disChecked.findIndex(showItem => {
+                return showItem.data === item
+              }) === -1
+							})
+			}
+			function app(){
+				for (var i = 0; i < disChecked.length; i++){
+				ulList.childNodes[i].firstChild.firstChild.checked=true
+				}
+
+			}
+      function dissCheck(p){
+				disChecked=[]
+				  for (var i = 0; i < p.length; i++) {
+						disChecked.push(p[i])
+			 }
+			 } 
+			function removeItem() {
+				this.getChecked()
+			disChecked.forEach((item,index)=>{
+					disChecked.splice(index,1);
+			})
+				ulList.innerHTML = ""
+				this.renderData(list)
+			}
+			function showAll(){
+				active.forEach(item=>{
+					
+				})
+				this.changeState(true,false,false)
+				ulList.innerHTML = ""
+				this.renderData(list)
+				item.innerText=active.length
+			}
+			function showActive () {
+				this.changeState(false,true,false)
+				ulList.innerHTML = ""
+				item.innerText=active.length
+				this.renderData(active)
+			}
+			function showCompleted(){
+				this.changeState(false,false,true)
+				ulList.innerHTML = ""
+				var listp=[]				
+				disChecked.filter(item =>{
+				  listp.push(item.data)
+				})
+				this.renderData(listp)
+       item.innerText=active.length
+			}
+			function changeState(all,active,complete){
+				 allState=all
+				 activeState=active
+				 completedState=complete
+			}
+			}
+		</script>
+	</body>
+</html>
